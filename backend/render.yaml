@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: chandra-residency-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
