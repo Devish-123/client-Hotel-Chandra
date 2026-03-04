@@ -11,4 +11,4 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 10000
 ENV PORT=10000
-ENTRYPOINT ["java", "-Dserver.port=10000", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:TieredStopAtLevel=1", "-Xms64m", "-Xmx256m", "-Dserver.port=10000", "-jar", "app.jar"]
