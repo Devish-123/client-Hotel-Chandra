@@ -15,11 +15,14 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow your frontend URLs (update when you know the deployed frontend URL)
+        // ✅ FIXED: Allow all origins WITHOUT credentials (CORS spec compliant)
+        // Remove credentials=true since we're using wildcard origins
+        // Alternative: Use specific origins and set credentials=true
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);  // ✅ FIXED: Set to false when using wildcard
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
