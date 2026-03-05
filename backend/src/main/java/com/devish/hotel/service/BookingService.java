@@ -128,7 +128,15 @@ public class BookingService {
                 .sum();
     }
 
-    // 🔥 DTO MAPPING METHOD
+    // � DELETE BOOKING
+    public void deleteBooking(Long bookingId) {
+        if (!bookingRepository.existsById(bookingId)) {
+            throw new RuntimeException("Booking not found");
+        }
+        bookingRepository.deleteById(bookingId);
+    }
+
+    // �🔥 DTO MAPPING METHOD
     private BookingResponseDTO mapToDTO(Booking booking) {
         return BookingResponseDTO.builder()
                 .id(booking.getId())

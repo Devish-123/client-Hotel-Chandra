@@ -66,6 +66,13 @@ public class BookingController {
                 bookingService.getBookingsPaginated(page, size, sortBy, direction));
     }
 
+    // ✅ Delete Booking
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteBooking(@PathVariable Long id) {
+        bookingService.deleteBooking(id);
+        return ResponseEntity.ok("Booking deleted successfully");
+    }
+
     // ✅ Debug Endpoint
     @GetMapping("/ping")
     public String ping() {
