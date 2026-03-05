@@ -40,7 +40,7 @@ public class RateLimitFilter implements Filter {
         if (bucket.isAllowed()) {
             chain.doFilter(request, response);
         } else {
-            httpResponse.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
+            httpResponse.setStatus(429); // Too Many Requests
             httpResponse.getWriter().write("Rate limit exceeded. Please try again later.");
         }
     }
