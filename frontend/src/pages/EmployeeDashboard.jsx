@@ -10,7 +10,7 @@ export default function EmployeeDashboard({ user, onLogout }) {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ text: "", type: "" });
-  const [form, setForm] = useState({ roomId: "", customerName: "", customerPhone: "", checkIn: "", checkOut: "" });
+  const [form, setForm] = useState({ roomId: "", customerName: "", customerPhone: "", checkIn: "", checkOut: "", discount: "" });
 
   const token = user.token?.trim().replace(/^"|"$/g, "");
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -37,11 +37,11 @@ export default function EmployeeDashboard({ user, onLogout }) {
     try {
       const res = await fetch(`${API}/bookings`, {
         method: "POST", headers,
-        body: JSON.stringify({ roomId: parseInt(form.roomId), customerName: form.customerName, customerPhone: form.customerPhone, checkIn: form.checkIn, checkOut: form.checkOut }),
+        body: JSON.stringify({ roomId: parseInt(form.roomId), customerName: form.customerName, customerPhone: form.customerPhone, checkIn: form.checkIn, checkOut: form.checkOut, discount: form.discount ? parseFloat(form.discount) : 0 }),
       });
       if (res.ok) {
         setMsg({ text: "Booking created successfully!", type: "success" });
-        setForm({ roomId: "", customerName: "", customerPhone: "", checkIn: "", checkOut: "" });
+        setForm({ roomId: "", customerName: "", customerPhone: "", checkIn: "", checkOut: "", discount: "" });
         fetchData();
       } else {
         const d = await res.json();
@@ -169,6 +169,10 @@ export default function EmployeeDashboard({ user, onLogout }) {
                   <div className="inp-group">
                     <label>Check-out Date</label>
                     <input className="inp" type="date" value={form.checkOut} onChange={e => setForm({ ...form, checkOut: e.target.value })} />
+                  </div>
+                  <div className="inp-group">
+                    <label>Discount Amount (₹)</label>
+                    <input className="inp" type="number" placeholder="0" min="0" value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })} />
                   </div>
                 </div>
                 <button className="btn-gold" onClick={createBooking}>Create Booking →</button>

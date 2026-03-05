@@ -30,7 +30,8 @@ public class BookingController {
                 request.getCustomerName(),
                 request.getCustomerPhone(),
                 LocalDate.parse(request.getCheckIn()),
-                LocalDate.parse(request.getCheckOut()));
+                LocalDate.parse(request.getCheckOut()),
+                request.getDiscount());
 
         return ResponseEntity.ok(booking);
     }

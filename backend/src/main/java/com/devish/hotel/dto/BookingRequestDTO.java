@@ -23,4 +23,6 @@ public class BookingRequestDTO {
 
     @NotBlank
     private String checkOut;
+
+    private Double discount = 0.0;
 }

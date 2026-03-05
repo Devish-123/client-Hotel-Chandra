@@ -50,7 +50,8 @@ public class BookingService {
             String customerName,
             String customerPhone,
             LocalDate checkIn,
-            LocalDate checkOut) {
+            LocalDate checkOut,
+            Double discount) {
 
         if (checkOut.isBefore(checkIn) || checkOut.equals(checkIn)) {
             throw new RuntimeException("Invalid check-in/check-out dates");
@@ -66,14 +67,23 @@ public class BookingService {
             throw new RuntimeException("Room already booked for selected dates");
         }
 
-        double amount = room.getPrice();
+        double baseAmount = room.getPrice();
+        double discountAmount = discount != null && discount > 0 ? discount : 0.0;
+        double finalAmount = baseAmount - discountAmount;
+
+        // Ensure final amount is not negative
+        if (finalAmount < 0) {
+            finalAmount = 0.0;
+        }
 
         Booking booking = Booking.builder()
                 .customerName(customerName)
                 .customerPhone(customerPhone)
                 .checkIn(checkIn)
                 .checkOut(checkOut)
-                .totalAmount(amount)
+                .totalAmount(finalAmount)
+                .discountAmount(discountAmount)
+                .discountPercentage(baseAmount > 0 ? (discountAmount / baseAmount) * 100 : 0.0)
                 .room(room)
                 .build();
 

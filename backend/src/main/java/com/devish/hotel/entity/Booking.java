@@ -27,6 +27,10 @@ public class Booking {
 
     private Double totalAmount; // 🔥 ADD THIS
 
+    private Double discountAmount = 0.0;
+
+    private Double discountPercentage = 0.0;
+
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
