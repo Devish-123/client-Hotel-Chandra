@@ -23,4 +23,11 @@ public class RoomService {
     public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
+
+    public void deleteRoom(Long roomId) {
+        if (!roomRepository.existsById(roomId)) {
+            throw new RuntimeException("Room not found");
+        }
+        roomRepository.deleteById(roomId);
+    }
 }

@@ -68,6 +68,7 @@ export default function AdminDashboard({ user, onLogout }) {
       if (res.ok) {
         setStaffMsg({ text: `Staff account "${newStaff.username}" created successfully!`, type: "success" });
         setNewStaff({ username: "", password: "" });
+        fetchStaff();
       } else {
         const d = await res.json();
         setStaffMsg({ text: d.error || d.message || "Failed to create staff", type: "error" });
@@ -75,7 +76,47 @@ export default function AdminDashboard({ user, onLogout }) {
     } catch { setStaffMsg({ text: "Something went wrong", type: "error" }); }
   };
 
-  useEffect(() => { fetchBookings(); fetchRooms(); }, []);
+  const fetchStaff = async () => {
+    try {
+      const res = await fetch(`${API}/auth/staff`, { headers });
+      const data = await res.json();
+      setStaffList(Array.isArray(data) ? data : []);
+    } catch { }
+  };
+
+  const deleteRoom = async (roomId) => {
+    if (!window.confirm("Are you sure you want to delete this room?")) return;
+    try {
+      const res = await fetch(`${API}/rooms/${roomId}`, { method: "DELETE", headers });
+      if (res.ok) {
+        setMsg("Room deleted successfully!");
+        fetchRooms();
+      }
+    } catch { }
+  };
+
+  const deleteStaff = async (staffId) => {
+    if (!window.confirm("Are you sure you want to delete this staff member?")) return;
+    try {
+      const res = await fetch(`${API}/auth/staff/${staffId}`, { method: "DELETE", headers });
+      if (res.ok) {
+        setStaffMsg({ text: "Staff member deleted successfully!", type: "success" });
+        fetchStaff();
+      }
+    } catch { }
+  };
+
+  const toggleStaffStatus = async (staffId, currentEnabled) => {
+    try {
+      const res = await fetch(`${API}/auth/staff/${staffId}/status?enabled=${!currentEnabled}`, { method: "PUT", headers });
+      if (res.ok) {
+        setStaffMsg({ text: `Staff member ${!currentEnabled ? "enabled" : "disabled"} successfully!`, type: "success" });
+        fetchStaff();
+      }
+    } catch { }
+  };
+
+  useEffect(() => { fetchBookings(); fetchRooms(); fetchStaff(); }, []);
 
   const totalRevenue = bookings.reduce((s, b) => s + (b.totalAmount || 0), 0);
 
@@ -231,10 +272,10 @@ export default function AdminDashboard({ user, onLogout }) {
                 <div className="card-title">All Rooms</div>
                 <div style={{ overflowX: "auto" }}>
                   <table className="table">
-                    <thead><tr><th>#</th><th>Room Number</th><th>Type</th><th>Price/Night</th><th>Status</th></tr></thead>
+                    <thead><tr><th>#</th><th>Room Number</th><th>Type</th><th>Price/Night</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>
                       {rooms.map(r => (
-                        <tr key={r.id}><td>{r.id}</td><td>{r.roomNumber}</td><td>{r.type}</td><td>₹{r.price?.toLocaleString()}</td><td><span className={`badge ${r.status === "AVAILABLE" ? "badge-available" : "badge-booked"}`}>{r.status}</span></td></tr>
+                        <tr key={r.id}><td>{r.id}</td><td>{r.roomNumber}</td><td>{r.type}</td><td>₹{r.price?.toLocaleString()}</td><td><span className={`badge ${r.status === "AVAILABLE" ? "badge-available" : "badge-booked"}`}>{r.status}</span></td><td><button className="btn-delete" onClick={() => deleteRoom(r.id)}>🗑️</button></td></tr>
                       ))}
                     </tbody>
                   </table>
@@ -316,6 +357,29 @@ export default function AdminDashboard({ user, onLogout }) {
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="card">
+                <div className="card-title">All Staff Members ({staffList.length})</div>
+                <div style={{ overflowX: "auto" }}>
+                  <table className="table">
+                    <thead><tr><th>#</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                      {staffList.map(s => (
+                        <tr key={s.id}>
+                          <td>{s.id}</td>
+                          <td>{s.username}</td>
+                          <td>Employee</td>
+                          <td><span className={`badge ${s.enabled ? "badge-available" : "badge-booked"}`}>{s.enabled ? "Active" : "Disabled"}</span></td>
+                          <td>
+                            <button className="btn-gold" style={{ marginRight: "8px", padding: "6px 12px", fontSize: "10px" }} onClick={() => toggleStaffStatus(s.id, s.enabled)}>{s.enabled ? "Disable" : "Enable"}</button>
+                            <button className="btn-delete" onClick={() => deleteStaff(s.id)}>🗑️</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {staffList.length === 0 && <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: "#6a5a3a", marginTop: "16px" }}>No staff members created yet.</p>}
               </div>
             </>
           )}

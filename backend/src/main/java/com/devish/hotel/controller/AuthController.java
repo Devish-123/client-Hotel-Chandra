@@ -55,4 +55,23 @@ public class AuthController {
 
         return ResponseEntity.ok(token);
     }
+
+    // Get all staff
+    @GetMapping("/staff")
+    public ResponseEntity<?> getAllStaff() {
+        return ResponseEntity.ok(userService.getAllStaff());
+    }
+
+    // Update staff status (enable/disable)
+    @PutMapping("/staff/{id}/status")
+    public ResponseEntity<User> updateStaffStatus(@PathVariable Long id, @RequestParam Boolean enabled) {
+        return ResponseEntity.ok(userService.updateStaffStatus(id, enabled));
+    }
+
+    // Delete staff member
+    @DeleteMapping("/staff/{id}")
+    public ResponseEntity<String> deleteStaff(@PathVariable Long id) {
+        userService.deleteStaff(id);
+        return ResponseEntity.ok("Staff member deleted successfully");
+    }
 }
