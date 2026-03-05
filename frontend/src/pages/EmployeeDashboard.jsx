@@ -50,6 +50,22 @@ export default function EmployeeDashboard({ user, onLogout }) {
     } catch { setMsg({ text: "Something went wrong", type: "error" }); }
   };
 
+  const deleteBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to delete this booking?")) return;
+    try {
+      const res = await fetch(`${API}/bookings/${bookingId}`, {
+        method: "DELETE", headers,
+      });
+      if (res.ok) {
+        setMsg({ text: "Booking deleted successfully!", type: "success" });
+        fetchData();
+      } else {
+        const d = await res.json();
+        setMsg({ text: d.error || "Delete failed", type: "error" });
+      }
+    } catch { setMsg({ text: "Something went wrong", type: "error" }); }
+  };
+
   useEffect(() => { fetchData(); }, []);
 
   return (
@@ -91,6 +107,8 @@ export default function EmployeeDashboard({ user, onLogout }) {
         .stat-card { background: #0f0a05; border: 1px solid rgba(212,175,55,0.1); padding: 24px; }
         .stat-label { font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #6a5a3a; margin-bottom: 10px; }
         .stat-val { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #D4AF37; }
+        .btn-delete { background: #d32f2f; color: white; border: none; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 6px 12px; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
+        .btn-delete:hover { background: #e53935; }
         @media (max-width: 768px) {
           .sidebar { display: none; }
           .main { margin-left: 0; padding: 20px; }
@@ -127,10 +145,10 @@ export default function EmployeeDashboard({ user, onLogout }) {
               <div className="card">
                 <div style={{ overflowX: "auto" }}>
                   <table className="table">
-                    <thead><tr><th>#</th><th>Guest Name</th><th>Phone</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Amount</th></tr></thead>
+                    <thead><tr><th>#</th><th>Guest Name</th><th>Phone</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Action</th></tr></thead>
                     <tbody>
                       {bookings.map(b => (
-                        <tr key={b.id}><td>{b.id}</td><td>{b.customerName}</td><td>{b.customerPhone}</td><td>{b.roomNumber} ({b.roomType})</td><td>{b.checkIn}</td><td>{b.checkOut}</td><td>₹{b.totalAmount?.toLocaleString()}</td></tr>
+                        <tr key={b.id}><td>{b.id}</td><td>{b.customerName}</td><td>{b.customerPhone}</td><td>{b.roomNumber} ({b.roomType})</td><td>{b.checkIn}</td><td>{b.checkOut}</td><td>₹{b.totalAmount?.toLocaleString()}</td><td><button className="btn-delete" onClick={() => deleteBooking(b.id)}>Delete</button></td></tr>
                       ))}
                     </tbody>
                   </table>
