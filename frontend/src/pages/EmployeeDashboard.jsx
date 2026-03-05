@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const API = "https://chandra-residency-backend.onrender.com";
 
 export default function EmployeeDashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("bookings");
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState([]);

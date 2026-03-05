@@ -1,29 +1,26 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Navbar({ navigate, currentPage }) {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const links = [
-    { label: "Home", page: "home" },
-    { label: "Rooms", page: "rooms" },
-    { label: "Reservation", page: "reservation" },
-    { label: "About", page: "about" },
+    { label: "Home", path: "/" },
+    { label: "Rooms", path: "/rooms" },
+    { label: "Reservation", path: "/reservation" },
+    { label: "About", path: "/about" },
   ];
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
-        .navbar {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-          background: rgba(15, 10, 5, 0.95);
-          backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-          padding: 0 40px;
-          display: flex; align-items: center; justify-content: space-between;
-          height: 75px;
-        }
-        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #D4AF37; letter-spacing: 2px; cursor: pointer; display: flex; flex-direction: column; line-height: 1.1; }
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(15, 10, 5, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 75px; }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #D4AF37; letter-spacing: 2px; cursor: pointer; display: flex; flex-direction: column; line-height: 1.1; background: none; border: none; }
         .nav-logo span { font-size: 11px; color: #a08c5b; letter-spacing: 4px; font-weight: 300; font-family: 'Montserrat', sans-serif; text-transform: uppercase; }
         .nav-links { display: flex; align-items: center; gap: 28px; }
         .nav-link { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #c8b89a; cursor: pointer; background: none; border: none; padding: 4px 0; position: relative; transition: color 0.3s; }
@@ -44,19 +41,19 @@ export default function Navbar({ navigate, currentPage }) {
         @media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } .navbar { padding: 0 20px; } }
       `}</style>
       <nav className="navbar">
-        <div className="nav-logo" onClick={() => navigate("home")}>
+        <button className="nav-logo" onClick={() => navigate("/")}>
           Chandra Residency
           <span>Chittoor • Est. 2000</span>
-        </div>
+        </button>
         <div className="nav-links">
           {links.map(l => (
-            <button key={l.page} className={`nav-link ${currentPage === l.page ? "active" : ""}`} onClick={() => navigate(l.page)}>
+            <button key={l.path} className={`nav-link ${isActive(l.path) ? "active" : ""}`} onClick={() => navigate(l.path)}>
               {l.label}
             </button>
           ))}
           <div className="btn-group">
-            <button className="staff-btn employee" onClick={() => navigate("staff-login")}>👷 Staff Login</button>
-            <button className="staff-btn admin" onClick={() => navigate("admin-login")}>👑 Admin Login</button>
+            <button className="staff-btn employee" onClick={() => navigate("/staff-login")}>👷 Staff Login</button>
+            <button className="staff-btn admin" onClick={() => navigate("/admin-login")}>👑 Admin Login</button>
           </div>
         </div>
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
@@ -65,11 +62,11 @@ export default function Navbar({ navigate, currentPage }) {
       </nav>
       <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
         {links.map(l => (
-          <button key={l.page} className="nav-link" onClick={() => { navigate(l.page); setMenuOpen(false); }}>{l.label}</button>
+          <button key={l.path} className="nav-link" onClick={() => { navigate(l.path); setMenuOpen(false); }}>{l.label}</button>
         ))}
         <div className="mobile-btn-group">
-          <button className="staff-btn employee" onClick={() => { navigate("staff-login"); setMenuOpen(false); }}>👷 Staff Login</button>
-          <button className="staff-btn admin" onClick={() => { navigate("admin-login"); setMenuOpen(false); }}>👑 Admin Login</button>
+          <button className="staff-btn employee" onClick={() => { navigate("/staff-login"); setMenuOpen(false); }}>👷 Staff Login</button>
+          <button className="staff-btn admin" onClick={() => { navigate("/admin-login"); setMenuOpen(false); }}>👑 Admin Login</button>
         </div>
       </div>
     </>

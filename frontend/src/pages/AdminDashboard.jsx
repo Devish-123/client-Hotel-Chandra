@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const API = "https://chandra-residency-backend.onrender.com";
 
 export default function AdminDashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("overview");
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState([]);

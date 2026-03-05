@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const API = "https://chandra-residency-backend.onrender.com";
 
-export default function StaffLogin({ onLogin, navigate, role }) {
+export default function StaffLogin({ onLogin, role }) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

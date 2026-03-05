@@ -1,3 +1,4 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -8,8 +9,37 @@ import StaffLogin from "./pages/StaffLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 
+function PublicLayout({ user, onLogin, onLogout }) {
+  const [auth, setAuth] = useState(user);
+
+  useEffect(() => { setAuth(user); }, [user]);
+
+  // If already logged in redirect to dashboard
+  if (auth?.role === "ADMIN") return <Navigate to="/admin" replace />;
+  if (auth?.role === "EMPLOYEE") return <Navigate to="/staff" replace />;
+
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/rooms" element={<Rooms />} />
+        <Route path="/reservation" element={<Reservation />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/staff-login" element={<StaffLogin onLogin={onLogin} role="EMPLOYEE" />} />
+        <Route path="/admin-login" element={<StaffLogin onLogin={onLogin} role="ADMIN" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  );
+}
+
+function ProtectedRoute({ user, requiredRole, children, onLogout }) {
+  if (!user || user.role !== requiredRole) return <Navigate to="/" replace />;
+  return children;
+}
+
 export default function App() {
-  const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -18,40 +48,38 @@ export default function App() {
     if (token && role) setUser({ token, role });
   }, []);
 
-  const navigate = (p) => {
-    setPage(p);
-    window.scrollTo(0, 0);
-  };
-
   const handleLogin = (token, role) => {
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     setUser({ token, role });
-    navigate(role === "ADMIN" ? "admin" : "employee");
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     setUser(null);
-    navigate("home");
   };
 
-  // Show dashboards if logged in
-  if (user?.role === "ADMIN") return <AdminDashboard user={user} onLogout={handleLogout} />;
-  if (user?.role === "EMPLOYEE") return <EmployeeDashboard user={user} onLogout={handleLogout} />;
-
   return (
-    <div>
-      <Navbar navigate={navigate} currentPage={page} />
-      {page === "home" && <Home navigate={navigate} />}
-      {page === "rooms" && <Rooms navigate={navigate} />}
-      {page === "reservation" && <Reservation />}
-      {page === "about" && <About />}
-      {/* Staff login — EMPLOYEE role only */}
-      {page === "staff-login" && <StaffLogin onLogin={handleLogin} navigate={navigate} role="EMPLOYEE" />}
-      {/* Admin login — ADMIN role only */}
-      {page === "admin-login" && <StaffLogin onLogin={handleLogin} navigate={navigate} role="ADMIN" />}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Admin dashboard */}
+        <Route path="/admin/*" element={
+          <ProtectedRoute user={user} requiredRole="ADMIN" onLogout={handleLogout}>
+            <AdminDashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
+        {/* Employee dashboard */}
+        <Route path="/staff/*" element={
+          <ProtectedRoute user={user} requiredRole="EMPLOYEE" onLogout={handleLogout}>
+            <EmployeeDashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
+        {/* Public pages */}
+        <Route path="/*" element={
+          <PublicLayout user={user} onLogin={handleLogin} onLogout={handleLogout} />
+        } />
+      </Routes>
+    </BrowserRouter>
   );
 }

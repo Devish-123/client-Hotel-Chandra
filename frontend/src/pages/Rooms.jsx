@@ -1,4 +1,7 @@
-export default function Rooms({ navigate }) {
+import { useNavigate } from "react-router-dom";
+
+export default function Rooms() {
+  const navigate = useNavigate();
   const rooms = [
     { type: "Standard Room", price: "₹1,800", beds: "1 Double Bed", size: "250 sq ft", img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80", features: ["AC", "WiFi", "TV", "Hot Water", "Daily Housekeeping"] },
     { type: "Deluxe Room", price: "₹2,500", beds: "1 King Bed", size: "350 sq ft", img: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600&q=80", features: ["AC", "WiFi", "Smart TV", "Mini Fridge", "Garden View", "Bathtub"] },

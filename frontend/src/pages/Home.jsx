@@ -1,4 +1,4 @@
-export default function Home({ navigate }) {
+export default function Home() {
   const amenities = [
     { icon: "🏊", title: "Swimming Pool", desc: "Relax in our pristine outdoor pool" },
     { icon: "🍽️", title: "Restaurant", desc: "Authentic Andhra cuisine & continental" },
