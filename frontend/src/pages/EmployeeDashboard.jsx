@@ -11,6 +11,7 @@ export default function EmployeeDashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ text: "", type: "" });
   const [form, setForm] = useState({ roomId: "", customerName: "", customerPhone: "", checkIn: "", checkOut: "", discount: "" });
+  const [actionLoading, setActionLoading] = useState(null);
 
   const token = user.token?.trim().replace(/^"|"$/g, "");
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -52,18 +53,20 @@ export default function EmployeeDashboard({ user, onLogout }) {
 
   const deleteBooking = async (bookingId) => {
     if (!window.confirm("Are you sure you want to delete this booking?")) return;
+    setActionLoading(`booking-${bookingId}`);
     try {
       const res = await fetch(`${API}/bookings/${bookingId}`, {
         method: "DELETE", headers,
       });
       if (res.ok) {
         setMsg({ text: "Booking deleted successfully!", type: "success" });
-        fetchData();
+        await fetchData();
       } else {
         const d = await res.json();
         setMsg({ text: d.error || "Delete failed", type: "error" });
       }
     } catch { setMsg({ text: "Something went wrong", type: "error" }); }
+    finally { setActionLoading(null); }
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -109,6 +112,7 @@ export default function EmployeeDashboard({ user, onLogout }) {
         .stat-val { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #D4AF37; }
         .btn-delete { background: #d32f2f; color: white; border: none; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 6px 12px; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
         .btn-delete:hover { background: #e53935; }
+        .btn-delete:disabled, .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
         @media (max-width: 768px) {
           .sidebar { display: none; }
           .main { margin-left: 0; padding: 20px; }
@@ -148,7 +152,7 @@ export default function EmployeeDashboard({ user, onLogout }) {
                     <thead><tr><th>#</th><th>Guest Name</th><th>Phone</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Action</th></tr></thead>
                     <tbody>
                       {bookings.map(b => (
-                        <tr key={b.id}><td>{b.id}</td><td>{b.customerName}</td><td>{b.customerPhone}</td><td>{b.roomNumber} ({b.roomType})</td><td>{b.checkIn}</td><td>{b.checkOut}</td><td>₹{b.totalAmount?.toLocaleString()}</td><td><button className="btn-delete" onClick={() => deleteBooking(b.id)}>Delete</button></td></tr>
+                        <tr key={b.id}><td>{b.id}</td><td>{b.customerName}</td><td>{b.customerPhone}</td><td>{b.roomNumber} ({b.roomType})</td><td>{b.checkIn}</td><td>{b.checkOut}</td><td>₹{b.totalAmount?.toLocaleString()}</td><td><button className="btn-delete" disabled={actionLoading === `booking-${b.id}`} onClick={() => deleteBooking(b.id)}>{actionLoading === `booking-${b.id}` ? "⏳" : "🗑️"}</button></td></tr>
                       ))}
                     </tbody>
                   </table>

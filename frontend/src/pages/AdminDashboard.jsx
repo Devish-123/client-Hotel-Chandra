@@ -17,6 +17,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const [staffMsg, setStaffMsg] = useState({ text: "", type: "" });
   const [staffList, setStaffList] = useState([]);
   const [msg, setMsg] = useState("");
+  const [actionLoading, setActionLoading] = useState(null);
 
   const token = user.token?.trim().replace(/^"|"$/g, "");
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -86,52 +87,54 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const deleteRoom = async (roomId) => {
     if (!window.confirm("Are you sure you want to delete this room?")) return;
+    setActionLoading(`room-${roomId}`);
     try {
       const res = await fetch(`${API}/rooms/${roomId}`, { method: "DELETE", headers });
       if (res.ok) {
         setMsg("Room deleted successfully!");
-        fetchRooms();
+        await fetchRooms();
       }
-    } catch { }
+    } catch { } finally { setActionLoading(null); }
   };
 
   const deleteStaff = async (staffId) => {
     if (!window.confirm("Are you sure you want to delete this staff member?")) return;
+    setActionLoading(`staff-${staffId}`);
     try {
       const res = await fetch(`${API}/auth/staff/${staffId}`, { method: "DELETE", headers });
       if (res.ok) {
         setStaffMsg({ text: "Staff member deleted successfully!", type: "success" });
-        fetchStaff();
+        await fetchStaff();
       }
-    } catch { }
+    } catch { } finally { setActionLoading(null); }
   };
 
   const toggleStaffStatus = async (staffId, currentEnabled) => {
+    setActionLoading(`toggle-${staffId}`);
     try {
       const res = await fetch(`${API}/auth/staff/${staffId}/status?enabled=${!currentEnabled}`, { method: "PUT", headers });
       if (res.ok) {
         setStaffMsg({ text: `Staff member ${!currentEnabled ? "enabled" : "disabled"} successfully!`, type: "success" });
-        fetchStaff();
+        await fetchStaff();
       }
-    } catch { }
+    } catch { } finally { setActionLoading(null); }
+  };
+
+  const deleteBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to delete this booking?")) return;
+    setActionLoading(`booking-${bookingId}`);
+    try {
+      const res = await fetch(`${API}/bookings/${bookingId}`, { method: "DELETE", headers });
+      if (res.ok) {
+        setMsg("Booking deleted successfully!");
+        await fetchBookings();
+      }
+    } catch { } finally { setActionLoading(null); }
   };
 
   useEffect(() => { fetchBookings(); fetchRooms(); fetchStaff(); }, []);
 
   const totalRevenue = bookings.reduce((s, b) => s + (b.totalAmount || 0), 0);
-
-  const deleteBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to delete this booking?")) return;
-    try {
-      const res = await fetch(`${API}/bookings/${bookingId}`, {
-        method: "DELETE", headers,
-      });
-      if (res.ok) {
-        setMsg("Booking deleted successfully!");
-        fetchBookings();
-      }
-    } catch { }
-  };
 
   return (
     <>
@@ -180,6 +183,7 @@ export default function AdminDashboard({ user, onLogout }) {
         .success-msg { background: rgba(50,180,100,0.1); border: 1px solid rgba(50,180,100,0.2); color: #50b464; font-family: 'Montserrat', sans-serif; font-size: 12px; padding: 12px; margin-bottom: 16px; }
         .btn-delete { background: #d32f2f; color: white; border: none; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 6px 10px; cursor: pointer; transition: all 0.3s; border-radius: 2px; }
         .btn-delete:hover { background: #e53935; }
+        .btn-delete:disabled, .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
         @media (max-width: 1024px) {
           .sidebar { width: 200px; }
           .main { margin-left: 200px; }
@@ -245,7 +249,7 @@ export default function AdminDashboard({ user, onLogout }) {
                     <thead><tr><th>#</th><th>Guest Name</th><th>Phone</th><th>Room</th><th>Type</th><th>Check-in</th><th>Check-out</th><th>Amount</th><th>Action</th></tr></thead>
                     <tbody>
                       {bookings.map(b => (
-                        <tr key={b.id}><td>{b.id}</td><td>{b.customerName}</td><td>{b.customerPhone}</td><td>{b.roomNumber}</td><td>{b.roomType}</td><td>{b.checkIn}</td><td>{b.checkOut}</td><td>₹{b.totalAmount?.toLocaleString()}</td><td><button className="btn-delete" onClick={() => deleteBooking(b.id)}>🗑️</button></td></tr>
+                        <tr key={b.id}><td>{b.id}</td><td>{b.customerName}</td><td>{b.customerPhone}</td><td>{b.roomNumber}</td><td>{b.roomType}</td><td>{b.checkIn}</td><td>{b.checkOut}</td><td>₹{b.totalAmount?.toLocaleString()}</td><td><button className="btn-delete" disabled={actionLoading === `booking-${b.id}`} onClick={() => deleteBooking(b.id)}>{actionLoading === `booking-${b.id}` ? "⏳" : "🗑️"}</button></td></tr>
                       ))}
                     </tbody>
                   </table>
@@ -275,7 +279,7 @@ export default function AdminDashboard({ user, onLogout }) {
                     <thead><tr><th>#</th><th>Room Number</th><th>Type</th><th>Price/Night</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>
                       {rooms.map(r => (
-                        <tr key={r.id}><td>{r.id}</td><td>{r.roomNumber}</td><td>{r.type}</td><td>₹{r.price?.toLocaleString()}</td><td><span className={`badge ${r.status === "AVAILABLE" ? "badge-available" : "badge-booked"}`}>{r.status}</span></td><td><button className="btn-delete" onClick={() => deleteRoom(r.id)}>🗑️</button></td></tr>
+                        <tr key={r.id}><td>{r.id}</td><td>{r.roomNumber}</td><td>{r.type}</td><td>₹{r.price?.toLocaleString()}</td><td><span className={`badge ${r.status === "AVAILABLE" ? "badge-available" : "badge-booked"}`}>{r.status}</span></td><td><button className="btn-delete" disabled={actionLoading === `room-${r.id}`} onClick={() => deleteRoom(r.id)}>{actionLoading === `room-${r.id}` ? "⏳" : "🗑️"}</button></td></tr>
                       ))}
                     </tbody>
                   </table>
@@ -371,8 +375,8 @@ export default function AdminDashboard({ user, onLogout }) {
                           <td>Employee</td>
                           <td><span className={`badge ${s.enabled ? "badge-available" : "badge-booked"}`}>{s.enabled ? "Active" : "Disabled"}</span></td>
                           <td>
-                            <button className="btn-gold" style={{ marginRight: "8px", padding: "6px 12px", fontSize: "10px" }} onClick={() => toggleStaffStatus(s.id, s.enabled)}>{s.enabled ? "Disable" : "Enable"}</button>
-                            <button className="btn-delete" onClick={() => deleteStaff(s.id)}>🗑️</button>
+                            <button className="btn-gold" disabled={actionLoading === `toggle-${s.id}`} style={{ marginRight: "8px", padding: "6px 12px", fontSize: "10px" }} onClick={() => toggleStaffStatus(s.id, s.enabled)}>{actionLoading === `toggle-${s.id}` ? "⏳" : (s.enabled ? "Disable" : "Enable")}</button>
+                            <button className="btn-delete" disabled={actionLoading === `staff-${s.id}`} onClick={() => deleteStaff(s.id)}>{actionLoading === `staff-${s.id}` ? "⏳" : "🗑️"}</button>
                           </td>
                         </tr>
                       ))}
