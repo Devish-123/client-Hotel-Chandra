@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 export function Reservation() {
+  const navigate = useNavigate();
   return (
     <>
       <style>{`
@@ -74,6 +77,7 @@ export function Reservation() {
 }
 
 export function About() {
+  const navigate = useNavigate();
   return (
     <>
       <style>{`

@@ -104,7 +104,7 @@ export default function StaffLogin({ onLogin, role }) {
             </button>
           </form>
           <div className="login-back">
-            <button onClick={() => navigate("home")}>← Back to Website</button>
+            <button onClick={() => navigate("/")}>← Back to Website</button>
           </div>
         </div>
       </div>

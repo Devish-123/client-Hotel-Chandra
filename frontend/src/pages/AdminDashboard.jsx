@@ -218,7 +218,7 @@ export default function AdminDashboard({ user, onLogout }) {
             ))}
           </nav>
           <div className="sidebar-footer">
-            <button className="logout-btn" onClick={onLogout}>Sign Out</button>
+            <button className="logout-btn" onClick={() => { onLogout(); navigate("/"); }}>Sign Out</button>
           </div>
         </div>
 

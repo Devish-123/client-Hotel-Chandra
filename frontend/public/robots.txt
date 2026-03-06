@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://chandraresidency.in/sitemap.xml
