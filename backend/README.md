@@ -74,3 +74,4 @@ Authorization: Bearer <your_token_here>
 - Spring Security + JWT
 - PostgreSQL (Neon Cloud)
 - Maven
+-deployed on render the backend
