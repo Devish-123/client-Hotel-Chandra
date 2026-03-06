@@ -8,10 +8,11 @@ export default function EmployeeDashboard({ user, onLogout }) {
   const [tab, setTab] = useState("bookings");
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState({ text: "", type: "" });
   const [form, setForm] = useState({ roomId: "", customerName: "", customerPhone: "", checkIn: "", checkOut: "", discount: "" });
   const [actionLoading, setActionLoading] = useState(null);
+  const [dataReady, setDataReady] = useState(false);
 
   const token = user.token?.trim().replace(/^"|"$/g, "");
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -69,7 +70,15 @@ export default function EmployeeDashboard({ user, onLogout }) {
     finally { setActionLoading(null); }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    const load = async () => {
+      setLoading(true);
+      await fetchData();
+      setDataReady(true);
+      setLoading(false);
+    };
+    load();
+  }, []);
 
   return (
     <>
@@ -88,11 +97,12 @@ export default function EmployeeDashboard({ user, onLogout }) {
         .sidebar-footer { padding: 16px; border-top: 1px solid rgba(212,175,55,0.1); }
         .logout-btn { width: 100%; background: transparent; border: 1px solid rgba(212,175,55,0.2); color: #6a5a3a; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 12px; cursor: pointer; transition: all 0.3s; }
         .logout-btn:hover { border-color: #D4AF37; color: #D4AF37; }
-        .main { margin-left: 260px; flex: 1; padding: 40px; }
+        .main { margin-left: 260px; flex: 1; padding: 40px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0.9; } to { opacity: 1; } }
         .page-title { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; color: #f0e6d0; margin-bottom: 8px; }
         .page-title em { font-style: italic; color: #D4AF37; }
         .page-sub { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #6a5a3a; margin-bottom: 40px; }
-        .card { background: #0f0a05; border: 1px solid rgba(212,175,55,0.1); padding: 32px; margin-bottom: 24px; }
+        .card { background: #0f0a05; border: 1px solid rgba(212,175,55,0.1); padding: 32px; margin-bottom: 24px; transition: all 0.3s ease; }
         .card-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #f0e6d0; margin-bottom: 24px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
         .inp-group label { font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; display: block; margin-bottom: 8px; }
@@ -101,7 +111,7 @@ export default function EmployeeDashboard({ user, onLogout }) {
         select.inp option { background: #1a1005; }
         .btn-gold { background: #D4AF37; color: #0f0a05; border: none; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 14px 32px; cursor: pointer; transition: all 0.3s; }
         .btn-gold:hover { background: #f0c93a; }
-        .table { width: 100%; border-collapse: collapse; }
+        .table { width: 100%; border-collapse: collapse; }\n        .table tbody { transition: opacity 0.3s ease; }\n        .table tr { transition: background-color 0.2s ease; }
         .table th { font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(212,175,55,0.15); }
         .table td { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #8a7a5a; padding: 14px 16px; border-bottom: 1px solid rgba(212,175,55,0.06); }
         .msg-success { background: rgba(50,180,100,0.1); border: 1px solid rgba(50,180,100,0.2); color: #50b464; font-family: 'Montserrat', sans-serif; font-size: 12px; padding: 12px 16px; margin-bottom: 20px; }
@@ -137,6 +147,14 @@ export default function EmployeeDashboard({ user, onLogout }) {
         </div>
 
         <main className="main">
+          {loading && !dataReady && (
+            <div style={{ textAlign: "center", padding: "60px 40px", color: "#D4AF37", fontFamily: "'Montserrat', sans-serif" }}>
+              <div style={{ fontSize: "24px", marginBottom: "12px" }}>⏳</div>
+              <div>Loading dashboard...</div>
+            </div>
+          )}
+          {dataReady && (
+          <>
           {tab === "bookings" && (
             <>
               <h1 className="page-title">All <em>Bookings</em></h1>
@@ -222,6 +240,8 @@ export default function EmployeeDashboard({ user, onLogout }) {
                 </div>
               </div>
             </>
+          )}
+          </>
           )}
         </main>
       </div>

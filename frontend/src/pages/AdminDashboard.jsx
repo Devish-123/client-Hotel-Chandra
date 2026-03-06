@@ -9,7 +9,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [revenue, setRevenue] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [revStart, setRevStart] = useState("");
   const [revEnd, setRevEnd] = useState("");
   const [newRoom, setNewRoom] = useState({ roomNumber: "", type: "", price: "" });
@@ -18,6 +18,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const [staffList, setStaffList] = useState([]);
   const [msg, setMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
+  const [dataReady, setDataReady] = useState(false);
 
   const token = user.token?.trim().replace(/^"|"$/g, "");
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -132,7 +133,15 @@ export default function AdminDashboard({ user, onLogout }) {
     } catch { } finally { setActionLoading(null); }
   };
 
-  useEffect(() => { fetchBookings(); fetchRooms(); fetchStaff(); }, []);
+  useEffect(() => { 
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchBookings(), fetchRooms(), fetchStaff()]);
+      setDataReady(true);
+      setLoading(false);
+    };
+    loadData();
+  }, []);
 
   const totalRevenue = bookings.reduce((s, b) => s + (b.totalAmount || 0), 0);
 
@@ -153,7 +162,8 @@ export default function AdminDashboard({ user, onLogout }) {
         .sidebar-footer { padding: 16px; border-top: 1px solid rgba(212,175,55,0.1); }
         .logout-btn { width: 100%; background: transparent; border: 1px solid rgba(212,175,55,0.2); color: #6a5a3a; font-family: 'Montserrat', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 12px; cursor: pointer; transition: all 0.3s; }
         .logout-btn:hover { border-color: #D4AF37; color: #D4AF37; }
-        .main { margin-left: 260px; flex: 1; padding: 40px; min-height: 100vh; }
+        .main { margin-left: 260px; flex: 1; padding: 40px; min-height: 100vh; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0.9; } to { opacity: 1; } }
         .page-title { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; color: #f0e6d0; margin-bottom: 8px; }
         .page-title em { font-style: italic; color: #D4AF37; }
         .page-sub { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #6a5a3a; margin-bottom: 40px; }
@@ -162,9 +172,9 @@ export default function AdminDashboard({ user, onLogout }) {
         .stat-label { font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #6a5a3a; margin-bottom: 12px; }
         .stat-val { font-family: 'Cormorant Garamond', serif; font-size: 36px; color: #D4AF37; }
         .stat-val.white { color: #f0e6d0; }
-        .card { background: #0f0a05; border: 1px solid rgba(212,175,55,0.1); padding: 32px; margin-bottom: 24px; }
+        .card { background: #0f0a05; border: 1px solid rgba(212,175,55,0.1); padding: 32px; margin-bottom: 24px; transition: all 0.3s ease; }
         .card-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #f0e6d0; margin-bottom: 24px; }
-        .table { width: 100%; border-collapse: collapse; }
+        .table { width: 100%; border-collapse: collapse; }\n        .table tbody { transition: opacity 0.3s ease; }\n        .table tr { transition: background-color 0.2s ease; }
         .table th { font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #D4AF37; padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(212,175,55,0.15); }
         .table td { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #8a7a5a; padding: 14px 16px; border-bottom: 1px solid rgba(212,175,55,0.06); }
         .table tr:hover td { background: rgba(212,175,55,0.03); }
@@ -213,6 +223,14 @@ export default function AdminDashboard({ user, onLogout }) {
         </div>
 
         <main className="main">
+          {loading && !dataReady && (
+            <div style={{ textAlign: "center", padding: "60px 40px", color: "#D4AF37", fontFamily: "'Montserrat', sans-serif" }}>
+              <div style={{ fontSize: "24px", marginBottom: "12px" }}>⏳</div>
+              <div>Loading dashboard...</div>
+            </div>
+          )}
+          {dataReady && (
+          <>
           {tab === "overview" && (
             <>
               <h1 className="page-title">Good Morning, <em>Admin</em></h1>
@@ -386,6 +404,8 @@ export default function AdminDashboard({ user, onLogout }) {
                 {staffList.length === 0 && <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "12px", color: "#6a5a3a", marginTop: "16px" }}>No staff members created yet.</p>}
               </div>
             </>
+          )}
+          </>
           )}
         </main>
       </div>
