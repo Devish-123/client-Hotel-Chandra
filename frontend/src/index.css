@@ -1,0 +1,225 @@
+/* ═══════════════════════════════════════════════════
+   CHANDRA RESIDENCY — NIZAM PALACE THEME
+   Ivory • Gold • Deep Red • Royal Blue • Dark Wood
+═══════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Raleway:wght@300;400;500;600&display=swap');
+
+:root {
+  --ivory: #F5F0E8;
+  --ivory-dark: #EAE2D0;
+  --gold: #C9A84C;
+  --gold-light: #E2C06A;
+  --gold-dim: rgba(201,168,76,0.3);
+  --deep-red: #7B2D3E;
+  --deep-red-light: #9B3D52;
+  --royal-blue: #1B3A6B;
+  --royal-blue-light: #2A5298;
+  --dark-wood: #2C1810;
+  --dark-wood-mid: #3D2314;
+  --dark-wood-light: #5C3820;
+  --cream-text: #D4C4A0;
+  --muted-text: #8A7A5A;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Raleway', sans-serif;
+  --navbar-height: 70px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark-wood);
+  color: var(--ivory);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── PAGE WRAPPER — fixes white space ── */
+.page-wrap {
+  padding-top: var(--navbar-height);
+  min-height: 100vh;
+}
+
+/* ── PAGE TRANSITION — fixes flickering ── */
+.page-enter {
+  animation: pageIn 0.3s ease forwards;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION ── */
+.section { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+.section-sm { max-width: 1200px; margin: 0 auto; padding: 60px 40px; }
+
+/* ── TAGS & LABELS ── */
+.tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px;
+}
+
+/* ── HEADINGS ── */
+.heading-xl {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 7vw, 80px);
+  font-weight: 500; line-height: 1.05;
+  color: var(--ivory);
+}
+.heading-lg {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 500; line-height: 1.1;
+  color: var(--ivory);
+}
+.heading-md {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 500; color: var(--ivory);
+}
+.gold-italic { font-style: italic; color: var(--gold); }
+
+/* ── DIVIDER ── */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0 28px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; max-width: 50px;
+  height: 1px; background: var(--gold);
+}
+.divider-diamond {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+  font-family: var(--font-body);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  background: var(--gold); color: var(--dark-wood);
+  border: none; padding: 15px 40px;
+  cursor: pointer; transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(201,168,76,0.35);
+}
+.btn-outline {
+  font-family: var(--font-body);
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 3px; text-transform: uppercase;
+  background: transparent; color: var(--gold);
+  border: 1px solid var(--gold-dim);
+  padding: 15px 40px; cursor: pointer; transition: all 0.3s;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.06);
+  transform: translateY(-1px);
+}
+.btn-red {
+  font-family: var(--font-body);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  background: var(--deep-red); color: var(--ivory);
+  border: none; padding: 15px 40px;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-red:hover { background: var(--deep-red-light); transform: translateY(-2px); }
+
+/* ── HERO PATTERN ── */
+.palace-pattern {
+  position: absolute; inset: 0; opacity: 0.04;
+  background-image:
+    repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(-45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+  background-size: 30px 30px;
+}
+
+/* ── CARD ── */
+.palace-card {
+  background: var(--dark-wood-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  transition: border-color 0.3s, transform 0.3s;
+}
+.palace-card:hover {
+  border-color: rgba(201,168,76,0.4);
+  transform: translateY(-3px);
+}
+
+/* ── FORM INPUTS ── */
+.form-inp {
+  width: 100%;
+  background: rgba(44,24,16,0.8);
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--ivory);
+  font-family: var(--font-body); font-size: 14px;
+  padding: 13px 16px; outline: none;
+  transition: border-color 0.3s;
+}
+.form-inp:focus { border-color: var(--gold); }
+.form-inp::placeholder { color: var(--muted-text); }
+.form-label {
+  font-family: var(--font-body);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); display: block; margin-bottom: 8px;
+}
+
+/* ── TABLE ── */
+.palace-table { width: 100%; border-collapse: collapse; }
+.palace-table th {
+  font-family: var(--font-body);
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); padding: 14px 16px; text-align: left;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+.palace-table td {
+  font-family: var(--font-body);
+  font-size: 13px; color: var(--cream-text);
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+}
+.palace-table tr:hover td { background: rgba(201,168,76,0.03); }
+
+/* ── STATS ── */
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 42px; color: var(--gold); line-height: 1;
+}
+.stat-lbl {
+  font-family: var(--font-body);
+  font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted-text);
+  margin-top: 4px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: #1A0E08;
+  border-top: 1px solid rgba(201,168,76,0.15);
+  padding: 60px 40px 30px;
+}
+
+/* ══════════════════════
+   MOBILE RESPONSIVE
+══════════════════════ */
+@media (max-width: 768px) {
+  .section { padding: 60px 20px; }
+  .section-sm { padding: 40px 20px; }
+  :root { --navbar-height: 65px; }
+}
+@media (max-width: 480px) {
+  .section { padding: 48px 16px; }
+  .btn-primary, .btn-outline, .btn-red { padding: 14px 28px; font-size: 11px; }
+}

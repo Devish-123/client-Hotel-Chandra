@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Rooms from "./pages/Rooms";
@@ -9,18 +9,21 @@ import StaffLogin from "./pages/StaffLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 
-function PublicLayout({ user, onLogin, onLogout }) {
-  const [auth, setAuth] = useState(user);
+// Scrolls to top on every route change + prevents flicker
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 
-  useEffect(() => { setAuth(user); }, [user]);
-
-  // If already logged in redirect to dashboard
-  if (auth?.role === "ADMIN") return <Navigate to="/admin" replace />;
-  if (auth?.role === "EMPLOYEE") return <Navigate to="/staff" replace />;
+function PublicLayout({ user, onLogin }) {
+  if (user?.role === "ADMIN") return <Navigate to="/admin" replace />;
+  if (user?.role === "EMPLOYEE") return <Navigate to="/staff" replace />;
 
   return (
     <>
       <Navbar />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/rooms" element={<Rooms />} />
@@ -34,18 +37,20 @@ function PublicLayout({ user, onLogin, onLogout }) {
   );
 }
 
-function ProtectedRoute({ user, requiredRole, children, onLogout }) {
+function ProtectedRoute({ user, requiredRole, children }) {
   if (!user || user.role !== requiredRole) return <Navigate to="/" replace />;
   return children;
 }
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
     if (token && role) setUser({ token, role });
+    setReady(true); // prevent flash of wrong page on load
   }, []);
 
   const handleLogin = (token, role) => {
@@ -60,24 +65,28 @@ export default function App() {
     setUser(null);
   };
 
+  // Don't render until auth state is resolved — prevents flicker
+  if (!ready) return (
+    <div style={{ minHeight:"100vh", background:"var(--dark-wood)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ fontFamily:"var(--font-display)", fontSize:"24px", color:"var(--gold)" }}>✦</div>
+    </div>
+  );
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Admin dashboard */}
         <Route path="/admin/*" element={
-          <ProtectedRoute user={user} requiredRole="ADMIN" onLogout={handleLogout}>
+          <ProtectedRoute user={user} requiredRole="ADMIN">
             <AdminDashboard user={user} onLogout={handleLogout} />
           </ProtectedRoute>
         } />
-        {/* Employee dashboard */}
         <Route path="/staff/*" element={
-          <ProtectedRoute user={user} requiredRole="EMPLOYEE" onLogout={handleLogout}>
+          <ProtectedRoute user={user} requiredRole="EMPLOYEE">
             <EmployeeDashboard user={user} onLogout={handleLogout} />
           </ProtectedRoute>
         } />
-        {/* Public pages */}
         <Route path="/*" element={
-          <PublicLayout user={user} onLogin={handleLogin} onLogout={handleLogout} />
+          <PublicLayout user={user} onLogin={handleLogin} />
         } />
       </Routes>
     </BrowserRouter>
