@@ -49,8 +49,25 @@ export default function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    if (token && role) setUser({ token, role });
-    setReady(true); // prevent flash of wrong page on load
+    if (token && role) {
+      try {
+        // Check if token is expired
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        if (isExpired) {
+          // Token expired — clear and go to home
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+        } else {
+          setUser({ token, role });
+        }
+      } catch {
+        // Invalid token — clear it
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+      }
+    }
+    setReady(true);
   }, []);
 
   const handleLogin = (token, role) => {
